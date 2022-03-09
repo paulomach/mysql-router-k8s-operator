@@ -9,3 +9,7 @@ remove:
 
 watch-test-log:
 	juju debug-log -m $(juju models|grep test-charm|awk '{ print $1 }')
+
+clean:
+	rm -rf .tox
+	find . -name __pycache__ -type d -exec rm -rf {} +;

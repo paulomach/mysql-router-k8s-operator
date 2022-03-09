@@ -23,9 +23,7 @@ Currently using the following OCI images:
 
 ## Contributing
 
-<!-- TEMPLATE-TODO: Change this URL to be the full Github path to CONTRIBUTING.md-->
-
 Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines on
 enhancements to this charm following best practice guidelines, and
-[CONTRIBUTING.md](https://github.com/<name>/<operator>/blob/main/CONTRIBUTING.md)
+[CONTRIBUTING.md](https://github.com/paulomach/mysql-router-k8s-operator/blob/main/CONTRIBUTING.md)
 for developer guidance.

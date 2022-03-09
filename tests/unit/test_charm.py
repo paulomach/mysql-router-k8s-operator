@@ -2,7 +2,6 @@
 # See LICENSE file for licensing details.
 
 import unittest
-from unittest.mock import Mock
 
 from ops.model import ActiveStatus
 from ops.testing import Harness
