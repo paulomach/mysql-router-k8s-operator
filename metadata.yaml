@@ -1,0 +1,27 @@
+# Copyright 2021 Canonical Ltd.
+# See LICENSE file for licensing details.
+name: mysqlrouter-operator
+display-name: MySQL Router K8s
+description: |
+  Charmed operator for mysql-router.
+summary: |
+  Charmed operator for mysql-router. Enables effective access to group replicated MySQL cluster for client applications.
+
+containers:
+  mysqlrouter:
+    resource: mysql-router-image
+
+resources:
+  mysql-router-image:
+    type: oci-image
+    description: OCI image for mysql-router
+    # TODO: replace with canonical maintained image
+    upstream-source: mysql/mysql-router:8.0
+
+provides:
+  client:
+    interface: db
+
+requires:
+  database:
+    interface: db
