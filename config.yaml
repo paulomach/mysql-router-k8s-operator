@@ -6,17 +6,5 @@
 options:
   mysql_port:
     default: 3306
-    description: Port for cluster connection
+    description: Port for client connection
     type: int
-
-  mysql_host:
-    description: Host for cluster connection
-    type: string
-
-  mysql_user:
-    description: User for cluster connection
-    type: string
-
-  mysql_password:
-    description: Password for cluster connection
-    type: string
