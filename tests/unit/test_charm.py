@@ -1,9 +1,10 @@
 # Copyright 2021 Canonical Ltd.
 # See LICENSE file for licensing details.
 
+
 import unittest
 
-from ops.model import ActiveStatus
+from ops.model import ActiveStatus, WaitingStatus
 from ops.testing import Harness
 
 from charm import MysqlRouterOperatorCharm
@@ -14,18 +15,34 @@ class TestCharm(unittest.TestCase):
         self.harness = Harness(MysqlRouterOperatorCharm)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
-        self.harness.model.app
+        self.harness.add_relation("mysql-router", "mysql-router")
         self.maxDiff = None
+        self.name = "mysqlrouter"
+        self.test_config = {
+            "mysql": {
+                "port": 3306,
+                "host": "localhost",
+                "user": "root",
+                "password": "password",
+            }
+        }
 
     def test_mysqlrouter_pebble_ready(self):
         # Check the initial Pebble plan is empty
-        initial_plan = self.harness.get_container_pebble_plan("mysqlrouter")
+        initial_plan = self.harness.get_container_pebble_plan(self.name)
         self.assertEqual(initial_plan.to_yaml(), "{}\n")
 
-        # updated config
-        self.harness.update_config(
-            {"mysql_host": "localhost", "mysql_user": "root", "mysql_password": "password"}
+        container = self.harness.model.unit.get_container(self.name)
+        # Emit the PebbleReadyEvent carrying the mysqlrouter container
+        self.harness.charm.on.mysqlrouter_pebble_ready.emit(container)
+
+        self.harness.set_leader(True)
+
+        self.assertEqual(
+            self.harness.charm.unit.status, WaitingStatus("Waiting for database relation")
         )
+
+    def test_config_changed_with_database_relation(self):
 
         # Expected plan after updated config
         expected_plan = {
@@ -33,7 +50,7 @@ class TestCharm(unittest.TestCase):
                 "mysqlrouter": {
                     "override": "replace",
                     "summary": "mysqlrouter",
-                    "command": "sleep 3600",
+                    "command": "./run.sh",
                     "startup": "enabled",
                     "environment": {
                         "MYSQL_PORT": 3306,
@@ -44,14 +61,14 @@ class TestCharm(unittest.TestCase):
                 }
             },
         }
-        # Get the mysqlrouter container from the model
-        container = self.harness.model.unit.get_container("mysqlrouter")
-        # Emit the PebbleReadyEvent carrying the mysqlrouter container
-        self.harness.charm.on.mysqlrouter_pebble_ready.emit(container)
-        # Get the plan now we've run PebbleReady
-        updated_plan = self.harness.get_container_pebble_plan("mysqlrouter").to_dict()
-        # Check we've got the plan we expected
 
+        self.harness.set_leader(True)
+        relation_id = self.harness.add_relation("database", "mysql")
+        self.harness.add_relation_unit(relation_id, "mysql/0")
+        self.harness.update_relation_data(relation_id, "mysql", self.test_config)
+        self.harness._emit_relation_created("database", relation_id, "mysql")
+
+        updated_plan = self.harness.get_container_pebble_plan("mysqlrouter").to_dict()
         self.assertEqual(expected_plan, updated_plan)
 
         # Check the service was started
