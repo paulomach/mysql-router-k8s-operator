@@ -26,8 +26,8 @@ juju add-relation mysql-operator mysql-router-operator
 
 Relations are defined in `metadata.yaml` are:
 
-* Requires: mysql-db
-* Provides: mysql-db
+* Requires: db
+* Provides: db
 
 ## OCI Images
 
