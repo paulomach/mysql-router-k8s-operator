@@ -92,7 +92,6 @@ class MysqlRouterOperatorCharm(CharmBase):
 
     def _on_mysqlrouter_pebble_ready(self, event) -> None:
         """Define and start a workload using the Pebble API."""
-
         if not self.has_db:
             logger.debug("No database relation found")
             self.unit.status = WaitingStatus("Waiting for database relation")
@@ -151,7 +150,6 @@ class MysqlRouterOperatorCharm(CharmBase):
 
     def _on_database_relation_created(self, event) -> None:
         """Handle database relation created event."""
-
         logger.info("Database relation created")
         if not self.has_db:
             logger.info("No database relation found")
